@@ -1,1 +1,49 @@
 Please visit http://dianna-project.org/wiki/
+
+This fork contains changes to Bitcoin standard values:
+
+* Default daemon port: 54321 (43210 for testnet)
+* Default RPC port: 8888
+* Default workdir: ~/.dianna (Unix), %%APPDATA%\Dianna (Windows), ~/Library/Application Support/Dianna (MacOS)
+* Default config file: %%WORKDIR%%/dianna.conf
+* Default PID file: %%WORKDIR%%/dianna.pid
+* Network ID: 30 (112 Testnet)
+* Seeding sources change
+
+Linux Build Instructions:
+
+Create "deps" dir in source root.
+
+Download and extract to deps/src:
+* boost 1.48
+* BDB 4.8.30-NC
+* miniupnpc 1.6
+* openssl 1.0.0g
+
+Openssl:
+
+x86_64:
+./Configure --prefix=/path/to/deps --openssldir=/path/to/deps/openssl linux-x86_64
+make install
+
+i686:
+./Configure --prefix=/path/to/deps --openssldir=/path/to/deps/openssl linux-generic32
+make install
+
+BDB:
+cd deps/db-4.8.30-NC/build_unix
+../dist/configure --prefix=/path/to/deps --enable-cxx
+make
+make install
+
+Boost:
+./bootstrap.sh 
+./bjam --prefix=/path/to/deps link=static runtime-link=static install
+
+miniupnpc:
+PREFIX=path/to/deps make install
+
+Diannad:
+cd src/
+make -f makefile.fedora
+strip diannad
