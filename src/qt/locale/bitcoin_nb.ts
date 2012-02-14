@@ -318,7 +318,7 @@ Er du sikker på at du vil kryptere lommeboken?</translation>
     <message>
         <location filename="../bitcoingui.cpp" line="200"/>
         <source>E&amp;xit</source>
-        <translation type="unfinished"/>
+        <translation>&amp;Avslutt</translation>
     </message>
     <message>
         <location filename="../bitcoingui.cpp" line="201"/>
@@ -328,7 +328,7 @@ Er du sikker på at du vil kryptere lommeboken?</translation>
     <message>
         <location filename="../bitcoingui.cpp" line="204"/>
         <source>&amp;About %1</source>
-        <translation type="unfinished"/>
+        <translation> &amp;Om %1</translation>
     </message>
     <message>
         <location filename="../bitcoingui.cpp" line="205"/>
@@ -917,7 +917,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../forms/sendcoinsentry.ui" line="103"/>
-        <source>Choose adress from address book</source>
+        <source>Choose address from address book</source>
         <translation>Velg adresse fra adresseboken</translation>
     </message>
     <message>
@@ -2332,7 +2332,7 @@ men kommentaren vil bli blank.</translation>
     <message>
         <location filename="../bitcoin.cpp" line="145"/>
         <source>Bitcoin Qt</source>
-        <translation type="unfinished"/>
+        <translation>Bitcoin Qt</translation>
     </message>
 </context>
 </TS>

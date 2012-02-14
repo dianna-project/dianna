@@ -172,13 +172,13 @@ bool AppInit2(int argc, char* argv[])
         string strUsage = string() +
           _("Bitcoin version") + " " + FormatFullVersion() + "\n\n" +
           _("Usage:") + "\t\t\t\t\t\t\t\t\t\t\n" +
-            "  bitcoin [options]                   \t  " + "\n" +
-            "  bitcoin [options] <command> [params]\t  " + _("Send command to -server or bitcoind\n") +
-            "  bitcoin [options] help              \t\t  " + _("List commands\n") +
-            "  bitcoin [options] help <command>    \t\t  " + _("Get help for a command\n") +
+            "  bitcoind [options]                   \t  " + "\n" +
+            "  bitcoind [options] <command> [params]\t  " + _("Send command to -server or bitcoind\n") +
+            "  bitcoind [options] help              \t\t  " + _("List commands\n") +
+            "  bitcoind [options] help <command>    \t\t  " + _("Get help for a command\n") +
           _("Options:\n") +
-            "  -conf=<file>     \t\t  " + _("Specify configuration file (default: bitcoin.conf)\n") +
-            "  -pid=<file>      \t\t  " + _("Specify pid file (default: bitcoind.pid)\n") +
+            "  -conf=<file>     \t\t  " + _("Specify configuration file (default: dianna.conf)\n") +
+            "  -pid=<file>      \t\t  " + _("Specify pid file (default: diannad.pid)\n") +
             "  -gen             \t\t  " + _("Generate coins\n") +
             "  -gen=0           \t\t  " + _("Don't generate coins\n") +
             "  -min             \t\t  " + _("Start minimized\n") +
@@ -186,11 +186,17 @@ bool AppInit2(int argc, char* argv[])
             "  -timeout=<n>     \t  "   + _("Specify connection timeout (in milliseconds)\n") +
             "  -proxy=<ip:port> \t  "   + _("Connect through socks4 proxy\n") +
             "  -dns             \t  "   + _("Allow DNS lookups for addnode and connect\n") +
+            "  -port=<port>     \t\t  " + _("Listen for connections on <port> (default: 54321 or testnet: 43210)\n") +
+            "  -maxconnections=<n>\t  " + _("Maintain at most <n> connections to peers (default: 125)\n") +
             "  -addnode=<ip>    \t  "   + _("Add a node to connect to\n") +
             "  -connect=<ip>    \t\t  " + _("Connect only to the specified node\n") +
+            "  -noirc           \t  "   + _("Don't find peers using internet relay chat\n") +
             "  -nolisten        \t  "   + _("Don't accept connections from outside\n") +
+            "  -nodnsseed       \t  "   + _("Don't bootstrap list of peers using DNS\n") +
             "  -banscore=<n>    \t  "   + _("Threshold for disconnecting misbehaving peers (default: 100)\n") +
             "  -bantime=<n>     \t  "   + _("Number of seconds to keep misbehaving peers from reconnecting (default: 86400)\n") +
+            "  -maxreceivebuffer=<n>\t  " + _("Maximum per-connection receive buffer, <n>*1000 bytes (default: 10000)\n") +
+            "  -maxsendbuffer=<n>\t  "   + _("Maximum per-connection send buffer, <n>*1000 bytes (default: 10000)\n") +
 #ifdef USE_UPNP
 #if USE_UPNP
             "  -noupnp          \t  "   + _("Don't attempt to use UPnP to map the listening port\n") +
@@ -206,9 +212,15 @@ bool AppInit2(int argc, char* argv[])
             "  -daemon          \t\t  " + _("Run in the background as a daemon and accept commands\n") +
 #endif
             "  -testnet         \t\t  " + _("Use the test network\n") +
+            "  -debug           \t\t  " + _("Output extra debugging information\n") +
+            "  -logtimestamps   \t  "   + _("Prepend debug output with timestamp\n") +
+            "  -printtoconsole  \t  "   + _("Send trace/debug info to console instead of debug.log file\n") +
+#ifdef WIN32
+            "  -printtodebugger \t  "   + _("Send trace/debug info to debugger\n") +
+#endif
             "  -rpcuser=<user>  \t  "   + _("Username for JSON-RPC connections\n") +
             "  -rpcpassword=<pw>\t  "   + _("Password for JSON-RPC connections\n") +
-            "  -rpcport=<port>  \t\t  " + _("Listen for JSON-RPC connections on <port> (default: 8332)\n") +
+            "  -rpcport=<port>  \t\t  " + _("Listen for JSON-RPC connections on <port> (default: 8888)\n") +
             "  -rpcallowip=<ip> \t\t  " + _("Allow JSON-RPC connections from specified IP address\n") +
             "  -rpcconnect=<ip> \t  "   + _("Send commands to node running on <ip> (default: 127.0.0.1)\n") +
             "  -keypool=<n>     \t  "   + _("Set key pool size to <n> (default: 100)\n") +
@@ -232,8 +244,8 @@ bool AppInit2(int argc, char* argv[])
         return false;
     }
 
+    fTestNet = GetBoolArg("-testnet");
     fDebug = GetBoolArg("-debug");
-    fAllowDNS = GetBoolArg("-dns");
 
 #ifndef WIN32
     fDaemon = GetBoolArg("-daemon");
@@ -252,10 +264,6 @@ bool AppInit2(int argc, char* argv[])
 #endif
     fPrintToConsole = GetBoolArg("-printtoconsole");
     fPrintToDebugger = GetBoolArg("-printtodebugger");
-
-    fTestNet = GetBoolArg("-testnet");
-    bool fTOR = (fUseProxy && addrProxy.port == htons(9050));
-    fNoListen = GetBoolArg("-nolisten") || fTOR;
     fLogTimestamps = GetBoolArg("-logtimestamps");
 
 #ifndef QT_GUI
@@ -317,16 +325,7 @@ bool AppInit2(int argc, char* argv[])
         return false;
     }
 
-    // Bind to the port early so we can tell if another instance is already running.
     string strErrors;
-    if (!fNoListen)
-    {
-        if (!BindListenPort(strErrors))
-        {
-            wxMessageBox(strErrors, "Bitcoin");
-            return false;
-        }
-    }
 
     //
     // Load data files
@@ -413,6 +412,10 @@ bool AppInit2(int argc, char* argv[])
     // Add wallet transactions that aren't already in a block to mapTransactions
     pwalletMain->ReacceptWalletTransactions();
 
+    // Note: Bitcoin-QT stores several settings in the wallet, so we want
+    // to load the wallet BEFORE parsing command-line arguments, so
+    // the command-line/dianna.conf settings override GUI setting.
+
     //
     // Parameters
     //
@@ -465,6 +468,42 @@ bool AppInit2(int argc, char* argv[])
         }
     }
 
+    bool fTor = (fUseProxy && addrProxy.port == htons(9050));
+    if (fTor)
+    {
+        // Use SoftSetArg here so user can override any of these if they wish.
+        // Note: the GetBoolArg() calls for all of these must happen later.
+        SoftSetArg("-nolisten", true);
+        SoftSetArg("-noirc", true);
+        SoftSetArg("-nodnsseed", true);
+        SoftSetArg("-noupnp", true);
+        SoftSetArg("-upnp", false);
+        SoftSetArg("-dns", false);
+    }
+
+    fAllowDNS = GetBoolArg("-dns");
+    fNoListen = GetBoolArg("-nolisten");
+
+    if (fHaveUPnP)
+    {
+#if USE_UPNP
+    if (GetBoolArg("-noupnp"))
+        fUseUPnP = false;
+#else
+    if (GetBoolArg("-upnp"))
+        fUseUPnP = true;
+#endif
+    }
+
+    if (!fNoListen)
+    {
+        if (!BindListenPort(strErrors))
+        {
+            wxMessageBox(strErrors, "Bitcoin");
+            return false;
+        }
+    }
+
     if (mapArgs.count("-addnode"))
     {
         BOOST_FOREACH(string strAddr, mapMultiArgs["-addnode"])
@@ -476,11 +515,6 @@ bool AppInit2(int argc, char* argv[])
         }
     }
 
-    if (GetBoolArg("-nodnsseed"))
-        printf("DNS seeding disabled\n");
-    else
-        DNSAddressSeed();
-
     if (mapArgs.count("-paytxfee"))
     {
         if (!ParseMoney(mapArgs["-paytxfee"], nTransactionFee))
@@ -490,17 +524,6 @@ bool AppInit2(int argc, char* argv[])
         }
         if (nTransactionFee > 0.25 * COIN)
             wxMessageBox(_("Warning: -paytxfee is set very high.  This is the transaction fee you will pay if you send a transaction."), "Bitcoin", wxOK | wxICON_EXCLAMATION);
-    }
-
-    if (fHaveUPnP)
-    {
-#if USE_UPNP
-    if (GetBoolArg("-noupnp"))
-        fUseUPnP = false;
-#else
-    if (GetBoolArg("-upnp"))
-        fUseUPnP = true;
-#endif
     }
 
     //

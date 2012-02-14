@@ -469,6 +469,23 @@ void ParseParameters(int argc, char* argv[])
     }
 }
 
+bool SoftSetArg(const std::string& strArg, const std::string& strValue)
+{
+    if (mapArgs.count(strArg))
+        return false;
+    mapArgs[strArg] = strValue;
+    return true;
+}
+
+bool SoftSetArg(const std::string& strArg, bool fValue)
+{
+    if (fValue)
+        return SoftSetArg(strArg, std::string("1"));
+    else
+        return SoftSetArg(strArg, std::string("0"));
+}
+
+
 string EncodeBase64(const unsigned char* pch, size_t len)
 {
     static const char *pbase64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -745,12 +762,12 @@ string MyGetSpecialFolderPath(int nFolder, bool fCreate)
 
 string GetDefaultDataDir()
 {
-    // Windows: C:\Documents and Settings\username\Application Data\Bitcoin
-    // Mac: ~/Library/Application Support/Bitcoin
-    // Unix: ~/.bitcoin
+    // Windows: C:\Documents and Settings\username\Application Data\Dianna
+    // Mac: ~/Library/Application Support/Dianna
+    // Unix: ~/.dianna
 #ifdef WIN32
     // Windows
-    return MyGetSpecialFolderPath(CSIDL_APPDATA, true) + "\\Bitcoin";
+    return MyGetSpecialFolderPath(CSIDL_APPDATA, true) + "\\Dianna";
 #else
     char* pszHome = getenv("HOME");
     if (pszHome == NULL || strlen(pszHome) == 0)
@@ -762,10 +779,10 @@ string GetDefaultDataDir()
     // Mac
     strHome += "Library/Application Support/";
     filesystem::create_directory(strHome.c_str());
-    return strHome + "Bitcoin";
+    return strHome + "Dianna";
 #else
     // Unix
-    return strHome + ".bitcoin";
+    return strHome + ".dianna";
 #endif
 #endif
 }
@@ -815,7 +832,7 @@ string GetDataDir()
 string GetConfigFile()
 {
     namespace fs = boost::filesystem;
-    fs::path pathConfig(GetArg("-conf", "bitcoin.conf"));
+    fs::path pathConfig(GetArg("-conf", "dianna.conf"));
     if (!pathConfig.is_complete())
         pathConfig = fs::path(GetDataDir()) / pathConfig;
     return pathConfig.string();
@@ -836,7 +853,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
     
     for (pod::config_file_iterator it(streamConfig, setOptions), end; it != end; ++it)
     {
-        // Don't overwrite existing settings so command line settings override bitcoin.conf
+        // Don't overwrite existing settings so command line settings override dianna.conf
         string strKey = string("-") + it->string_key;
         if (mapSettingsRet.count(strKey) == 0)
             mapSettingsRet[strKey] = it->value[0];
@@ -847,7 +864,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 string GetPidFile()
 {
     namespace fs = boost::filesystem;
-    fs::path pathConfig(GetArg("-pid", "bitcoind.pid"));
+    fs::path pathConfig(GetArg("-pid", "diannad.pid"));
     if (!pathConfig.is_complete())
         pathConfig = fs::path(GetDataDir()) / pathConfig;
     return pathConfig.string();

@@ -243,19 +243,20 @@ public:
         pcs = &csIn;
         pcs->Enter(pszName, pszFile, nLine);
     }
+
+    operator bool() const
+    {
+        return true;
+    }
+
     ~CCriticalBlock()
     {
         pcs->Leave();
     }
 };
 
-// WARNING: This will catch continue and break!
-// break is caught with an assertion, but there's no way to detect continue.
-// I'd rather be careful than suffer the other more error prone syntax.
-// The compiler will optimise away all this loop junk.
 #define CRITICAL_BLOCK(cs)     \
-    for (bool fcriticalblockonce=true; fcriticalblockonce; assert(("break caught by CRITICAL_BLOCK!" && !fcriticalblockonce)), fcriticalblockonce=false) \
-        for (CCriticalBlock criticalblock(cs, #cs, __FILE__, __LINE__); fcriticalblockonce; fcriticalblockonce=false)
+    if (CCriticalBlock criticalblock = CCriticalBlock(cs, #cs, __FILE__, __LINE__))
 
 class CTryCriticalBlock
 {
@@ -267,6 +268,12 @@ public:
     {
         pcs = (csIn.TryEnter(pszName, pszFile, nLine) ? &csIn : NULL);
     }
+
+    operator bool() const
+    {
+        return Entered();
+    }
+
     ~CTryCriticalBlock()
     {
         if (pcs)
@@ -274,17 +281,24 @@ public:
             pcs->Leave();
         }
     }
-    bool Entered() { return pcs != NULL; }
+    bool Entered() const { return pcs != NULL; }
 };
 
 #define TRY_CRITICAL_BLOCK(cs)     \
-    for (bool fcriticalblockonce=true; fcriticalblockonce; assert(("break caught by TRY_CRITICAL_BLOCK!" && !fcriticalblockonce)), fcriticalblockonce=false) \
-        for (CTryCriticalBlock criticalblock(cs, #cs, __FILE__, __LINE__); fcriticalblockonce && (fcriticalblockonce = criticalblock.Entered()); fcriticalblockonce=false)
+    if (CTryCriticalBlock criticalblock = CTryCriticalBlock(cs, #cs, __FILE__, __LINE__))
 
 
 
 
 
+
+// This is exactly like std::string, but with a custom allocator.
+// (secure_allocator<> is defined in serialize.h)
+typedef std::basic_string<char, std::char_traits<char>, secure_allocator<char> > SecureString;
+
+// This is exactly like std::string, but with a custom allocator.
+// (secure_allocator<> is defined in serialize.h)
+typedef std::basic_string<char, std::char_traits<char>, secure_allocator<char> > SecureString;
 
 
 
@@ -445,7 +459,7 @@ inline int64 GetArg(const std::string& strArg, int64 nDefault)
     return nDefault;
 }
 
-inline bool GetBoolArg(const std::string& strArg)
+inline bool GetBoolArg(const std::string& strArg, bool fDefault=false)
 {
     if (mapArgs.count(strArg))
     {
@@ -453,9 +467,26 @@ inline bool GetBoolArg(const std::string& strArg)
             return true;
         return (atoi(mapArgs[strArg]) != 0);
     }
-    return false;
+    return fDefault;
 }
 
+/**
+ * Set an argument if it doesn't already have a value
+ *
+ * @param strArg Argument to set (e.g. "-foo")
+ * @param strValue Value (e.g. "1")
+ * @return true if argument gets set, false if it already had a value
+ */
+bool SoftSetArg(const std::string& strArg, const std::string& strValue);
+
+/**
+ * Set a boolean argument if it doesn't already have a value
+ *
+ * @param strArg Argument to set (e.g. "-foo")
+ * @param fValue Value (e.g. false)
+ * @return true if argument gets set, false if it already had a value
+ */
+bool SoftSetArg(const std::string& strArg, bool fValue);
 
 
 

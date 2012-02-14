@@ -319,7 +319,7 @@ Bent u er zeker van uw dat u uw portemonnee wilt versleutelen?</translation>
     <message>
         <location filename="../bitcoingui.cpp" line="200"/>
         <source>E&amp;xit</source>
-        <translation type="unfinished"/>
+        <translation>&amp;Afsluiten</translation>
     </message>
     <message>
         <location filename="../bitcoingui.cpp" line="201"/>
@@ -329,7 +329,7 @@ Bent u er zeker van uw dat u uw portemonnee wilt versleutelen?</translation>
     <message>
         <location filename="../bitcoingui.cpp" line="204"/>
         <source>&amp;About %1</source>
-        <translation type="unfinished"/>
+        <translation>&amp;Over %1</translation>
     </message>
     <message>
         <location filename="../bitcoingui.cpp" line="205"/>
@@ -918,7 +918,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../forms/sendcoinsentry.ui" line="103"/>
-        <source>Choose adress from address book</source>
+        <source>Choose address from address book</source>
         <translation>Kies adres uit adresboek</translation>
     </message>
     <message>
@@ -2331,7 +2331,7 @@ maar het commentaarveld zal leeg zijn</translation>
     <message>
         <location filename="../bitcoin.cpp" line="145"/>
         <source>Bitcoin Qt</source>
-        <translation type="unfinished"/>
+        <translation>Bitcoin Qt</translation>
     </message>
 </context>
 </TS>
