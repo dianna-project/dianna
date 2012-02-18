@@ -41,7 +41,8 @@ Boost:
 ./bjam --prefix=/path/to/deps link=static runtime-link=static install
 
 miniupnpc:
-PREFIX=path/to/deps make install
+PREFIX=/path/to/deps make install
+cp -R /path/to/deps/usr/* /path/to/deps
 
 Diannad:
 cd src/
