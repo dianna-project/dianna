@@ -166,7 +166,7 @@ Value stop(const Array& params, bool fHelp)
 #ifndef QT_GUI
     // Shutdown will take long enough that the response should get back
     CreateThread(Shutdown, NULL);
-    return "bitcoin server stopping";
+    return "dianna server stopping";
 #else
     throw runtime_error("NYI: cannot shut down GUI with RPC command");
 #endif
