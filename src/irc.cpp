@@ -267,9 +267,9 @@ void ThreadIRCSeed2(void* parg)
 
     while (!fShutdown)
     {
-        CAddress addrConnect("92.243.23.21", 6667); // irc.lfnet.org
+        CAddress addrConnect("94.125.182.252", 6667); // chat.freenode.net
 
-        CAddress addrIRC("irc.lfnet.org", 6667, true);
+        CAddress addrIRC("chat.freenode.net", 6667, true);
         if (addrIRC.IsValid())
             addrConnect = addrIRC;
 
@@ -343,8 +343,8 @@ void ThreadIRCSeed2(void* parg)
             Send(hSocket, "JOIN #diannaTEST\r");
             Send(hSocket, "WHO #diannaTEST\r");
         } else {
-            // randomly join #bitcoin00-#bitcoin99
-            int channel_number = GetRandInt(100);
+            // randomly join #dianna00-#dianna01
+            int channel_number = GetRandInt(2);
             Send(hSocket, strprintf("JOIN #dianna%02d\r", channel_number).c_str());
             Send(hSocket, strprintf("WHO #dianna%02d\r", channel_number).c_str());
         }

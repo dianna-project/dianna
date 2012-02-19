@@ -7,8 +7,8 @@ This fork contains changes to Bitcoin standard values:
 * Default workdir: ~/.dianna (Unix), %%APPDATA%\Dianna (Windows), ~/Library/Application Support/Dianna (MacOS)
 * Default config file: %%WORKDIR%%/dianna.conf
 * Default PID file: %%WORKDIR%%/dianna.pid
-* Network ID: 30 (112 Testnet)
-* Seeding sources change
+* Seeding sources and IRC server change
+* Network ID: 31 (91 Testnet)
 
 Linux Build Instructions:
 
@@ -41,7 +41,8 @@ Boost:
 ./bjam --prefix=/path/to/deps link=static runtime-link=static install
 
 miniupnpc:
-PREFIX=path/to/deps make install
+PREFIX=/path/to/deps make install
+cp -R /path/to/deps/usr/* /path/to/deps
 
 Diannad:
 cd src/

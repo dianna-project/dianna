@@ -331,7 +331,7 @@ bool AppInit2(int argc, char* argv[])
     // Load data files
     //
     if (fDaemon)
-        fprintf(stdout, "bitcoin server starting\n");
+        fprintf(stdout, "dianna server starting\n");
     strErrors = "";
     int64 nStart;
 
